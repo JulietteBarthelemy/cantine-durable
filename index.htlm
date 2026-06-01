@@ -1,2 +1,70 @@
-<h1>Test de la cantine</h1>
-<p>Si tu vois ce message en gros, c'est que tu as réussi !</p>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eco-Cantine - Notre Collège s'engage !</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f9f4; color: #333; margin: 0; padding: 20px; }
+        header { background-color: #2e7d32; color: white; padding: 20px; text-align: center; border-radius: 8px; }
+        .container { max-width: 800px; margin: 20px auto; }
+        .intro { background-color: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .grid-poubelles { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 20px; }
+        .poubelle-card { background: white; padding: 15px; border-radius: 8px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border-top: 5px solid #4caf50; }
+        .poubelle-card h3 { margin: 10px 0; color: #2e7d32; }
+        .poids { font-size: 24px; font-weight: bold; color: #e65100; margin: 10px 0; }
+        footer { text-align: center; margin-top: 40px; font-size: 0.9em; color: #666; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Objectifs de Développement Durable : Objectif Zéro Gâchis !</h1>
+        <p>Suivi des déchets de notre collège (700 demi-pensionnaires - Vaucluse)</p>
+    </header>
+
+    <div class="container">
+        <div class="intro">
+            <h2>Pourquoi cette page ?</h2>
+            <p>Dans le cadre de l'<strong>ODD 12</strong>, nous mesurons chaque jour le poids de nos déchets à la cantine pour comprendre notre impact et le réduire. Voici les pesées de cette semaine :</p>
+        </div>
+
+        <div class="grid-poubelles">
+            <div class="poubelle-card">
+                <h3>Déchets Alimentaires</h3>
+                <p>Restes d'assiettes, plats...</p>
+                <div class="poids">12.4 kg</div>
+            </div>
+
+            <div class="poubelle-card">
+                <h3>Pain</h3>
+                <p>Morceaux de pain gâchés</p>
+                <div class="poids">3.1 kg</div>
+            </div>
+
+            <div class="poubelle-card">
+                <h3>Fruits entamés</h3>
+                <p>Fruits non terminés</p>
+                <div class="poids">1.5 kg</div>
+            </div>
+
+            <div class="poubelle-card">
+                <h3>Serviettes en papier</h3>
+                <p>Papier à jeter</p>
+                <div class="poids">0.8 kg</div>
+            </div>
+
+            <div class="poubelle-card">
+                <h3>Emballages</h3>
+                <p>Plastiques, laitages...</p>
+                <div class="poids">2.2 kg</div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>Collège du Vaucluse - Projet Éco-Délégués 2026</p>
+    </footer>
+
+</body>
+</html>
