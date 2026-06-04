@@ -3,197 +3,277 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Suivi des Déchets - Canti-Gâchis v2 (Grammes)</title>
+    <title>Suivi Annuel - Canti-Gâchis v3</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body { font-family: Arial, sans-serif; background-color: #f7faf7; color: #2d3748; margin: 0; padding: 20px; }
-        .wrapper { max-width: 1000px; margin: 0 auto; }
-        header { background-color: #1b4d3e; color: white; padding: 30px; text-align: center; border-radius: 12px; margin-bottom: 25px; }
-        header h1 { margin: 0 0 10px 0; font-size: 24px; }
-        header p { margin: 0; font-size: 16px; opacity: 0.9; }
-        .zone-saisie { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 25px; border-left: 6px solid #dd6b20; }
-        .zone-saisie h3 { margin-top: 0; color: #1b4d3e; }
-        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 15px; margin-top: 15px; }
+        .wrapper { max-width: 1100px; margin: 0 auto; }
+        header { background-color: #1b4d3e; color: white; padding: 20px; text-align: center; border-radius: 12px; margin-bottom: 25px; }
+        header h1 { margin: 0 0 5px 0; font-size: 24px; }
+        
+        /* SYSTÈME D'ONGLETS */
+        .onglets { display: flex; gap: 10px; margin-bottom: 20px; }
+        .onglet-btn { padding: 12px 20px; background-color: #e2e8f0; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 14px; transition: 0.3s; }
+        .onglet-btn.active { background-color: #1b4d3e; color: white; }
+        .contenu-onglet { display: none; }
+        .contenu-onglet.active { display: block; }
+
+        .zone-blanche { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 25px; }
+        .grid-2 { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 25px; }
+        @media (max-width: 768px) { .grid-2 { grid-template-columns: 1fr; } }
+
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin: 15px 0; }
         .form-group { display: flex; flex-direction: column; }
-        .form-group label { font-size: 13px; font-weight: bold; margin-bottom: 8px; color: #4a5568; }
-        .form-group input { padding: 10px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 16px; font-weight: bold; }
-        .actions-btn { display: flex; gap: 10px; grid-column: 1 / -1; justify-content: flex-end; margin-top: 10px; }
-        .btn { padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; border: none; font-size: 14px; }
-        .btn-calculer { background-color: #1b4d3e; color: white; }
-        .btn-effacer { background-color: #e53e3e; color: white; }
-        .statut-sauvegarde { font-size: 13px; color: #2b6cb0; font-style: italic; margin-top: 12px; font-weight: bold; }
-        .bloc-dechets { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 35px; }
-        .carte { background: white; padding: 15px; border-radius: 12px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-top: 6px solid #4cbd7a; }
-        .carte h3 { margin: 0 0 5px 0; color: #1b4d3e; font-size: 14px; }
-        .poids-affiche { font-size: 26px; font-weight: bold; color: #dd6b20; margin-top: 10px; }
-        .dashboard-visuel { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 25px; margin-bottom: 35px; }
-        @media (max-width: 768px) { .dashboard-visuel { grid-template-columns: 1fr; } }
-        .zone-tableau, .zone-graphique { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #e2e8f0; }
+        .form-group label { font-size: 12px; font-weight: bold; margin-bottom: 5px; color: #4a5568; }
+        .form-group input, .form-group select { padding: 10px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 15px; font-weight: bold; }
+        
+        .btn { padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; border: none; }
+        .btn-principal { background-color: #1b4d3e; color: white; }
+        .btn-danger { background-color: #e53e3e; color: white; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #e2e8f0; font-size: 14px; }
         th { background-color: #1b4d3e; color: white; }
         .total-ligne { font-weight: bold; background-color: #edf2f7; }
-        footer { text-align: center; margin-top: 50px; font-size: 14px; color: #a0aec0; }
+        .statut { font-size: 13px; color: #2b6cb0; font-style: italic; margin-top: 10px; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <div class="wrapper">
         <header>
-            <h1>Objectifs de Développement Durable — ODD 12</h1>
-            <p>Collège du Vaucluse — Suivi du gaspillage de la cantine (700 demi-pensionnaires)</p>
+            <h1>Canti-Gâchis v3 — Tableaux de Bord Multi-Graphiques</h1>
+            <p>Collège du Vaucluse — Suivi du gaspillage (700 demi-pensionnaires)</p>
         </header>
 
-        <section class="zone-saisie">
-            <h3>Saisie et modification des pesées</h3>
-            <div class="form-grid">
-                <div class="form-group">
-                    <label for="input-serviettes">1. Serviettes papier (g)</label>
-                    <input type="number" id="input-serviettes" value="900" min="0">
+        <div class="onglets">
+            <button class="onglet-btn active" onclick="changerOnglet(event, 'onglet-saisie')">📊 Saisie du Jour & Camembert</button>
+            <button class="onglet-btn" onclick="changerOnglet(event, 'onglet-mois')">📅 Comparatif Mensuel (S1 à S4)</button>
+            <button class="onglet-btn" onclick="changerOnglet(event, 'onglet-annee')">📈 Évolution sur l'Année</button>
+        </div>
+
+        <div id="onglet-saisie" class="contenu-onglet active">
+            <div class="zone-blanche">
+                <h3>Saisie de la dernière pesée</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>1. Serviettes papier (g)</label>
+                        <input type="number" id="input-serviettes" value="900">
+                    </div>
+                    <div class="form-group">
+                        <label>2. Emballages (g)</label>
+                        <input type="number" id="input-emballages" value="3500">
+                    </div>
+                    <div class="form-group">
+                        <label>3. Déchets Alimentaires (g)</label>
+                        <input type="number" id="input-alim" value="15200">
+                    </div>
+                    <div class="form-group">
+                        <label>4. Fruits entamés (g)</label>
+                        <input type="number" id="input-fruits" value="2300">
+                    </div>
+                    <div class="form-group">
+                        <label>5. Le Pain (g)</label>
+                        <input type="number" id="input-pain" value="4100">
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="input-emballages">2. Emballages (g)</label>
-                    <input type="number" id="input-emballages" value="3500" min="0">
-                </div>
-                <div class="form-group">
-                    <label for="input-alim">3. Déchets Alimentaires (g)</label>
-                    <input type="number" id="input-alim" value="15200" min="0">
-                </div>
-                <div class="form-group">
-                    <label for="input-fruits">4. Fruits entamés (g)</label>
-                    <input type="number" id="input-fruits" value="2300" min="0">
-                </div>
-                <div class="form-group">
-                    <label for="input-pain">5. Le Pain (g)</label>
-                    <input type="number" id="input-pain" value="4100" min="0">
-                </div>
-                <div class="actions-btn">
-                    <button class="btn btn-effacer" onclick="reinitialiser()">Remettre à Zéro</button>
-                    <button class="btn btn-calculer" onclick="sauvegarderEtCalculer()">Sauvegarder & Mettre à jour</button>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <button class="btn btn-principal" onclick="sauvegarderJour()">Sauvegarder cette pesée</button>
+                    <div id="statut-saisie" class="statut">✓ Prêt à enregistrer</div>
                 </div>
             </div>
-            <div class="statut-sauvegarde" id="statut-sauvegarde">✓ Mémoire active : Vos données sont sécurisées.</div>
-        </section>
 
-        <main class="bloc-dechets">
-            <div class="carte"><h3>1. Serviettes Papier</h3><div class="poids-affiche" id="card-serviettes">900 g</div></div>
-            <div class="carte"><h3>2. Emballages</h3><div class="poids-affiche" id="card-emballages">3500 g</div></div>
-            <div class="carte"><h3>3. Déchets Alimentaires</h3><div class="poids-affiche" id="card-alim">15200 g</div></div>
-            <div class="carte"><h3>4. Fruits Entamés</h3><div class="poids-affiche" id="card-fruits">2300 g</div></div>
-            <div class="carte"><h3>5. Le Pain</h3><div class="poids-affiche" id="card-pain">4100 g</div></div>
-        </main>
-
-        <div class="dashboard-visuel">
-            <section class="zone-tableau">
-                <table>
-                    <thead>
-                        <tr><th>Type de Poubelle</th><th>Poids Mesuré</th><th>Objectif de Réduction</th></tr>
-                    </thead>
-                    <tbody>
-                        <tr><td><strong>1. Serviettes en papier</strong></td><td id="tab-serviettes">900 g</td><td>Prendre 1 seule serviette max</td></tr>
-                        <tr><td><strong>2. Emballages</strong></td><td id="tab-emballages">3500 g</td><td>Favoriser le vrac en cuisine</td></tr>
-                        <tr><td><strong>3. Déchets Alimentaires</strong></td><td id="tab-alim">15200 g</td><td>Passer sous la barre des 10 000 g</td></tr>
-                        <tr><td><strong>4. Fruits entamés</strong></td><td id="tab-fruits">2300 g</td><td>Sensibiliser au gaspillage</td></tr>
-                        <tr><td><strong>5. Le Pain</strong></td><td id="tab-pain">4100 g</td><td>Objectif : Zéro gâchis de pain</td></tr>
-                        <tr class="total-ligne"><td>TOTAL DU REPAS</td><td id="tab-total">26000 g</td><td id="ratio-eleve">Soit 37g par élève</td></tr>
-                    </tbody>
-                </table>
-            </section>
-            <section class="zone-graphique"><canvas id="graphiqueDechets"></canvas></section>
+            <div class="grid-2">
+                <div class="zone-blanche">
+                    <h3>Récapitulatif de la dernière saisie</h3>
+                    <table>
+                        <thead>
+                            <tr><th>Poubelle</th><th>Poids</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>1. Serviettes en papier</td><td id="tab-serviettes">0 g</td></tr>
+                            <tr><td>2. Emballages</td><td id="tab-emballages">0 g</td></tr>
+                            <tr><td>3. Déchets Alimentaires</td><td id="tab-alim">0 g</td></tr>
+                            <tr><td>4. Fruits entamés</td><td id="tab-fruits">0 g</td></tr>
+                            <tr><td>5. Le Pain</td><td id="tab-pain">0 g</td></tr>
+                            <tr class="total-ligne"><td>TOTAL</td><td id="tab-total">0 g</td></tr>
+                            <tr class="total-ligne" style="color: #dd6b20;"><td>Moyenne / Élève</td><td id="tab-ratio">0 g / élève</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="zone-blanche">
+                    <h3>Répartition (Dernière saisie)</h3>
+                    <canvas id="graphiqueCamembert" style="max-height: 280px;"></canvas>
+                </div>
+            </div>
         </div>
-        <footer><p>© 2026 Projet Éco-Collège Vaucluse - Sensibilisation à l'ODD 12</p></footer>
+
+        <div id="onglet-mois" class="contenu-onglet">
+            <div class="zone-blanche">
+                <h3>Attribuer le total du jour à une semaine du mois</h3>
+                <p style="font-size: 14px; color:#4a5568;">Sélectionnez la semaine en cours pour y injecter le total calculé dans l'onglet 1 :</p>
+                <div style="display: flex; gap: 15px; align-items: center;">
+                    <select id="select-semaine" style="padding: 10px; border-radius: 8px; font-weight: bold;">
+                        <option value="S1">Semaine 1</option>
+                        <option value="S2">Semaine 2</option>
+                        <option value="S3">Semaine 3</option>
+                        <option value="S4">Semaine 4</option>
+                    </select>
+                    <button class="btn btn-principal" onclick="envoyerVersSemaine()">Enregistrer pour cette semaine</button>
+                </div>
+            </div>
+            <div class="grid-2">
+                <div class="zone-blanche">
+                    <h3>Historique du Mois (Total en grammes)</h3>
+                    <canvas id="graphiqueMois"></canvas>
+                </div>
+                <div class="zone-blanche">
+                    <h3>Détails du mois</h3>
+                    <p style="font-size: 14px;">Chaque barre représente le poids total cumulé de vos 5 poubelles sur la semaine donnée.</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="onglet-annee" class="contenu-onglet">
+            <div class="zone-blanche">
+                <h3>Envoyer le score global du mois vers l'historique annuel</h3>
+                <div style="display: flex; gap: 15px; align-items: center;">
+                    <select id="select-mois" style="padding: 10px; border-radius: 8px; font-weight: bold;">
+                        <option value="0">Janvier</option><option value="1">Février</option><option value="2">Mars</option>
+                        <option value="3">Avril</option><option value="4">Mai</option><option value="5">Juin</option>
+                        <option value="6">Juillet</option><option value="7">Août</option><option value="8">Septembre</option>
+                        <option value="9">Octobre</option><option value="10">Novembre</option><option value="11">Décembre</option>
+                    </select>
+                    <button class="btn btn-principal" onclick="envoyerVersAnnee()">Enregistrer pour ce mois</button>
+                    <button class="btn btn-danger" onclick="RAZ_Totale()">Tout Effacer la mémoire</button>
+                </div>
+            </div>
+            <div class="zone-blanche">
+                <h3>Évolution sur l'année scolaire (en grammes)</h3>
+                <canvas id="graphiqueAnnee" style="max-height: 300px;"></canvas>
+            </div>
+        </div>
+
+        <footer>
+            <p>© 2026 Projet Éco-Collège Vaucluse - ODD 12</p>
+        </footer>
     </div>
 
     <script>
-        let monGraphique;
+        // --- VARIABLES GLOBALES DES GRAPHIQUES ---
+        let chartCamembert, chartMois, chartAnnee;
 
-        window.onload = function() {
-            if(localStorage.getItem('sauvegardeDonneesCantineG')) {
-                const donnees = JSON.parse(localStorage.getItem('sauvegardeDonneesCantineG'));
-                document.getElementById('input-serviettes').value = donnees.serviettes;
-                document.getElementById('input-emballages').value = donnees.emballages;
-                document.getElementById('input-alim').value = donnees.alim;
-                document.getElementById('input-fruits').value = donnees.fruits;
-                document.getElementById('input-pain').value = donnees.pain;
-                document.getElementById('statut-sauvegarde').innerText = "💾 Données précédentes récupérées !";
-            }
-            initialiserGraphique();
-            calculerEtMettreAJourInterface();
+        // --- STRUCTURE DES DONNÉES PAR DÉFAUT ---
+        let donneesProjet = {
+            dernierJour: { serviettes: 900, emballages: 3500, alim: 15200, fruits: 2300, pain: 4100 },
+            semaines: { S1: 22000, S2: 26000, S3: 19000, S4: 24000 },
+            annee: [120000, 115000, 95000, 105000, 110000, 80000, 0, 0, 130000, 125000, 140000, 118000]
         };
 
-        function initialiserGraphique() {
-            const ctx = document.getElementById('graphiqueDechets').getContext('2d');
-            monGraphique = new Chart(ctx, {
+        window.onload = function() {
+            // Charger la mémoire si elle existe
+            if(localStorage.getItem('cantiGachisMemoire')) {
+                donneesProjet = JSON.parse(localStorage.getItem('cantiGachisMemoire'));
+            }
+
+            // Mettre les valeurs de la mémoire dans les cases de saisie
+            document.getElementById('input-serviettes').value = donneesProjet.dernierJour.serviettes;
+            document.getElementById('input-emballages').value = donneesProjet.dernierJour.emballages;
+            document.getElementById('input-alim').value = donneesProjet.dernierJour.alim;
+            document.getElementById('input-fruits').value = donneesProjet.dernierJour.fruits;
+            document.getElementById('input-pain').value = donneesProjet.dernierJour.pain;
+
+            // Créer TOUS les graphiques proprement dès le départ
+            creerGraphiques();
+            rafraichirInterface();
+        };
+
+        function creerGraphiques() {
+            // 1. Le Camembert (Dernière Saisie)
+            const ctx1 = document.getElementById('graphiqueCamembert').getContext('2d');
+            chartCamembert = new Chart(ctx1, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Serviettes', 'Emballages', 'Alimentaire', 'Fruits', 'Le Pain'],
+                    labels: ['Serviettes', 'Emballages', 'Alimentaire', 'Fruits', 'Pain'],
                     datasets: [{
                         data: [0, 0, 0, 0, 0],
-                        backgroundColor: ['#cbd5e0', '#ecc94b', '#dd6b20', '#3182ce', '#4cbd7a'],
-                        borderWidth: 1
+                        backgroundColor: ['#cbd5e0', '#ecc94b', '#dd6b20', '#3182ce', '#4cbd7a']
                     }]
                 },
                 options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
             });
+
+            // 2. Le graphique du Mois (Barres Semaines)
+            const ctx2 = document.getElementById('graphiqueMois').getContext('2d');
+            chartMois = new Chart(ctx2, {
+                type: 'bar',
+                data: {
+                    labels: ['Semaine 1', 'Semaine 2', 'Semaine 3', 'Semaine 4'],
+                    datasets: [{
+                        label: 'Déchets totaux (g)',
+                        data: [0, 0, 0, 0],
+                        backgroundColor: '#3182ce'
+                    }]
+                },
+                options: { responsive: true }
+            });
+
+            // 3. Le graphique de l'Année (Ligne Évolution)
+            const ctx3 = document.getElementById('graphiqueAnnee').getContext('2d');
+            chartAnnee = new Chart(ctx3, {
+                type: 'line',
+                data: {
+                    labels: ['Janv', 'Févr', 'Mars', 'Avril', 'Mai', 'Juin', 'Juil', 'Août', 'Sept', 'Oct', 'Nov', 'Déc'],
+                    datasets: [{
+                        label: 'Gaspillage mensuel global (g)',
+                        data: new Array(12).fill(0),
+                        borderColor: '#1b4d3e',
+                        backgroundColor: 'rgba(27, 77, 62, 0.1)',
+                        fill: true,
+                        tension: 0.2
+                    }]
+                },
+                options: { responsive: true }
+            });
         }
 
-        function sauvegarderEtCalculer() {
-            const structureDonnees = {
-                serviettes: parseInt(document.getElementById('input-serviettes').value) || 0,
-                emballages: parseInt(document.getElementById('input-emballages').value) || 0,
-                alim: parseInt(document.getElementById('input-alim').value) || 0,
-                fruits: parseInt(document.getElementById('input-fruits').value) || 0,
-                pain: parseInt(document.getElementById('input-pain').value) || 0
-            };
-            localStorage.setItem('sauvegardeDonneesCantineG', JSON.stringify(structureDonnees));
-            calculerEtMettreAJourInterface();
-            
-            const notification = document.getElementById('statut-sauvegarde');
-            notification.innerText = "⚡ Sauvegardé en mémoire !";
-            setTimeout(() => { notification.innerText = "✓ Vos modifications sont en sécurité."; }, 3000);
+        function rafraichirInterface() {
+            // Lecture des inputs de l'onglet 1
+            const s = parseInt(document.getElementById('input-serviettes').value) || 0;
+            const e = parseInt(document.getElementById('input-emballages').value) || 0;
+            const a = parseInt(document.getElementById('input-alim').value) || 0;
+            const f = parseInt(document.getElementById('input-fruits').value) || 0;
+            const p = parseInt(document.getElementById('input-pain').value) || 0;
+
+            const totalJour = s + e + a + f + p;
+            const ratio = Math.round(totalJour / 700);
+
+            // Remplir le tableau récapitulatif
+            document.getElementById('tab-serviettes').innerText = s + " g";
+            document.getElementById('tab-emballages').innerText = e + " g";
+            document.getElementById('tab-alim').innerText = a + " g";
+            document.getElementById('tab-fruits').innerText = f + " g";
+            document.getElementById('tab-pain').innerText = p + " g";
+            document.getElementById('tab-total').innerText = totalJour + " g";
+            document.getElementById('tab-ratio').innerText = ratio + " g / élève";
+
+            // Mettre à jour les données du camembert
+            chartCamembert.data.datasets[0].data = [s, e, a, f, p];
+            chartCamembert.update();
+
+            // Mettre à jour le graphique du mois
+            chartMois.data.datasets[0].data = [
+                donneesProjet.semaines.S1,
+                donneesProjet.semaines.S2,
+                donneesProjet.semaines.S3,
+                donneesProjet.semaines.S4
+            ];
+            chartMois.update();
+
+            // Mettre à jour le graphique de l'année
+            chartAnnee.data.datasets[0].data = donneesProjet.annee;
+            chartAnnee.update();
         }
 
-        function calculerEtMettreAJourInterface() {
-            const serv = parseInt(document.getElementById('input-serviettes').value) || 0;
-            const emb = parseInt(document.getElementById('input-emballages').value) || 0;
-            const alim = parseInt(document.getElementById('input-alim').value) || 0;
-            const fr = parseInt(document.getElementById('input-fruits').value) || 0;
-            const pn = parseInt(document.getElementById('input-pain').value) || 0;
-
-            const total = serv + emb + alim + fr + pn;
-            const gParEleve = Math.round(total / 700);
-
-            document.getElementById('card-serviettes').innerText = serv + " g";
-            document.getElementById('card-emballages').innerText = emb + " g";
-            document.getElementById('card-alim').innerText = alim + " g";
-            document.getElementById('card-fruits').innerText = fr + " g";
-            document.getElementById('card-pain').innerText = pn + " g";
-
-            document.getElementById('tab-serviettes').innerText = serv + " g";
-            document.getElementById('tab-emballages').innerText = emb + " g";
-            document.getElementById('tab-alim').innerText = alim + " g";
-            document.getElementById('tab-fruits').innerText = fr + " g";
-            document.getElementById('tab-pain').innerText = pn + " g";
-            document.getElementById('tab-total').innerText = total + " g";
-            document.getElementById('ratio-eleve').innerText = "Soit " + gParEleve + "g par élève (Sur 700 demi-pensionnaires)";
-
-            if (monGraphique) {
-                monGraphique.data.datasets[0].data = [serv, emb, alim, fr, pn];
-                monGraphique.update();
-            }
-        }
-
-        function reinitialiser() {
-            if(confirm("Remettre à zéro ?")) {
-                localStorage.removeItem('sauvegardeDonneesCantineG');
-                document.getElementById('input-serviettes').value = 0;
-                document.getElementById('input-emballages').value = 0;
-                document.getElementById('input-alim').value = 0;
-                document.getElementById('input-fruits').value = 0;
-                document.getElementById('input-pain').value = 0;
-                calculerEtMettreAJourInterface();
-            }
-        }
-    </script>
-</body>
-</html>
+        function sauvegarderJour() {
+            donneesProjet
